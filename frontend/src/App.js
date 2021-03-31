@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { connect } from "react-redux";
 
 import * as actions from "./actions/index";
@@ -10,8 +10,14 @@ import PageNavigation from "./components/common/Navigation";
 import CacheBuster from "./cacheBuster";
 import packageJson from "../package.json";
 
+import WithMatkaDetails from "./components/HOC/WithMatkaDetails";
+
 import "./assets/scss/main.scss";
 import { initWeb3 } from "./wallets/metamask";
+import SingleMatka from "./components/SingleMatka";
+import { compose } from "redux";
+
+const ComposedSingleMatka = compose(WithMatkaDetails)(SingleMatka);
 
 class App extends Component {
   componentDidMount() {
@@ -19,6 +25,8 @@ class App extends Component {
   }
 
   render() {
+    const active = window.location.pathname;
+
     const links = [
       { link: "/", name: "home" },
       { link: "/single-matka", name: "Single Matka" },
@@ -41,9 +49,11 @@ class App extends Component {
         </CacheBuster>
 
         <Header />
-        <PageNavigation links={[...links]} />
+        <PageNavigation links={[...links]} active={active} />
 
-        <Switch></Switch>
+        <Switch>
+          <Route exact="/single-matka" component={ComposedSingleMatka}></Route>
+        </Switch>
       </div>
     );
   }

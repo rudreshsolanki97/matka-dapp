@@ -19,12 +19,16 @@
       border-radius: 2px;
       margin-left: 2px;
       margin-right: 2px;
-      background-color: $color-new-blue;
+      background-color: $color-background-primary-light;
       color: white;
 
       &:hover {
-        background-color: $color-orange-dull;
+        background-color: lighten($color-new-blue, 10%);
       }
+    }
+
+    .active {
+      background-color: lighten($color-new-blue, 10%);
     }
   }
 }

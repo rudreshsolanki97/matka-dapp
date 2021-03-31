@@ -41,6 +41,21 @@ export const RUNNING_CHAIN = 97;
 
 export const EXPLORER = "https://testnet.bscscan.com/";
 
+export const HTTP_PROVIDER = "https://data-seed-prebsc-1-s1.binance.org:8545/";
+
+export const ObjToArr = (obj) => Object.keys(obj).map((key) => obj[key]);
+
+export const FilterStructResp = (obj) =>
+  Object.keys(obj)
+    .filter((e, i) => {
+      if (i < Object.keys(obj).length / 2) return false;
+      return true;
+    })
+    .reduce((acc, key) => {
+      acc[key] = obj[key];
+      return acc;
+    }, {});
+
 export const IsHex = (n) => {
   const re = /[0-9A-Fa-f]{6}/g;
 
@@ -50,3 +65,25 @@ export const IsHex = (n) => {
     return false;
   }
 };
+
+export const GetTimerData = (seconds) => {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor(((seconds % 86400) % 3600) / 60);
+  const sec = Math.floor(((seconds % 86400) % 3600) % 60);
+  return { days, hours, minutes, seconds: sec };
+};
+
+export const FormatSeconds = (seconds) => {
+  const { days, hours, minutes, seconds: sec } = GetTimerData(seconds);
+  return (
+    <span className="timer">
+      <span className="days">{days}</span>:
+      <span className="hours">{hours}</span>:
+      <span className="minutes">{minutes}</span>::
+      <span className="seconds">{sec}</span>
+    </span>
+  );
+};
+
+export const TIMER_FORMAT = "DD:HH:MM::SS";
