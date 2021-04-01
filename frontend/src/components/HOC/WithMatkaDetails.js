@@ -35,6 +35,7 @@ const WithMatkaDetails = (ComposedComponent) => {
       ])
         .then((resp) => {
           const [currentPool, poolActive, poolInterval, operatorFee] = resp;
+
           this.setState({
             matkaDetails: {
               currentPool: FilterStructResp(currentPool),
@@ -51,6 +52,7 @@ const WithMatkaDetails = (ComposedComponent) => {
               poolActive: "",
               poolInterval: "",
               operatorFee: "",
+              allowance: "",
             },
           });
         });

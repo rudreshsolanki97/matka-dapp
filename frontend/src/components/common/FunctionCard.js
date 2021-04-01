@@ -1,12 +1,13 @@
 import { Card, Container } from "react-bootstrap";
 
-import { DynamicForm } from "../RenderCustomView";
+import { DynamicForm } from "./RenderCustomView";
 
 const FunctionCard = ({
   title,
   inputs,
   stateMutability,
   setModalContent,
+  contractType = "token",
 }) => {
   return (
     <Card className="custom-card-2">
@@ -20,6 +21,7 @@ const FunctionCard = ({
         <DynamicForm
           data={inputs}
           method={title}
+          contractType={contractType}
           stateMutability={stateMutability}
           setModalContent={setModalContent}
         />

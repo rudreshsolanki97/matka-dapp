@@ -31,6 +31,7 @@
   margin: 1rem;
   border-radius: 1rem;
   height: min-content;
+  background-color: $color-background-primary-lighter;
 
   &-body {
     padding: 2rem;
@@ -42,12 +43,19 @@
     text-align: left;
     padding: 1rem;
     margin: 1rem 1rem 0;
+    text-transform: uppercase;
 
     &--bottom {
       height: 0.5rem;
       width: 3rem;
       background-color: $color-light-blue;
     }
+  }
+
+  .field-label {
+    background-color: $color-background-primary-lighter;
+    text-transform: capitalize;
+    border: none;
   }
 
   .btn {

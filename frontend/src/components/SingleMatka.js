@@ -1,9 +1,15 @@
 import React from "react";
 import { Container, Row, Col, Modal, Button } from "react-bootstrap";
 import { connect } from "react-redux";
-import { TIMER_FORMAT } from "../helpers/constant";
+import {
+  CONTRACT_ADDRESS,
+  RemoveMultiplier,
+  TIMER_FORMAT,
+} from "../helpers/constant";
 import { SubmitContractTxGeneral, GetNativeBalance } from "../wallets/metamask";
+import FunctionCard from "./common/FunctionCard";
 import Timer from "./common/Timer";
+import _ from "lodash";
 
 const KeyFieldView = ({ k, v }) => (
   <Row>
@@ -19,6 +25,66 @@ const KeyFieldView = ({ k, v }) => (
 class SingleMatka extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      showModal: false,
+      modalContent: "",
+      allowance: null,
+    };
+
+    this.setModalContent = this.setModalContent.bind(this);
+    this.setShowModal = this.setShowModal.bind(this);
+  }
+
+  componentDidMount() {
+    SubmitContractTxGeneral(
+      "allowance",
+      "token",
+      "view",
+      this.props.wallet.address,
+      CONTRACT_ADDRESS.matka
+    )
+      .then((resp) => {
+        console.log(
+          "xxx",
+          this.props.wallet.address,
+          CONTRACT_ADDRESS.matka,
+          resp
+        );
+        this.setState({ allowance: resp });
+      })
+      .catch((e) => console.log(e));
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.wallet.address !== prevProps.wallet.address) {
+      SubmitContractTxGeneral(
+        "allowance",
+        "token",
+        "view",
+        this.props.wallet.address,
+        CONTRACT_ADDRESS.matka
+      )
+        .then((resp) => {
+          console.log(
+            "xxx  2",
+            this.props.wallet.address,
+            CONTRACT_ADDRESS.matka,
+            resp
+          );
+
+          this.setState({ allowance: resp });
+        })
+        .catch((e) => console.log(e));
+    }
+  }
+
+  setShowModal() {
+    this.setState({ showModal: true });
+  }
+
+  setModalContent(modalContent) {
+    this.setState({ modalContent, showModal: true });
   }
 
   renderAllMatkaDetails() {
@@ -35,10 +101,6 @@ class SingleMatka extends React.Component {
   }
 
   renderCurrentPool() {
-    console.log(
-      "this.props.matkaDetails.currentPool",
-      this.props.matkaDetails.currentPool
-    );
     if (!this.props.matkaDetails.currentPool) return "";
     return (
       <Container>
@@ -48,7 +110,9 @@ class SingleMatka extends React.Component {
         })}
         {KeyFieldView({
           k: "Total Amount In Pool",
-          v: this.props.matkaDetails.currentPool.totalPoolAmount,
+          v: RemoveMultiplier(
+            this.props.matkaDetails.currentPool.totalPoolAmount
+          ),
         })}
         {KeyFieldView({
           k: `Bet End In (${TIMER_FORMAT})`,
@@ -63,14 +127,102 @@ class SingleMatka extends React.Component {
     );
   }
 
-  fetchUserBets() {}
+  renderApprove() {
+    const input = {
+      inputs: [
+        {
+          internalType: "address",
+          name: "spender",
+          type: "address",
+        },
+        {
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "approve",
+      outputs: [
+        {
+          internalType: "bool",
+          name: "",
+          type: "bool",
+        },
+      ],
+      stateMutability: "nonpayable",
+      type: "function",
+    };
+    return (
+      <FunctionCard
+        title={input.name}
+        key={1}
+        contractType="token"
+        inputs={input.inputs.map((e) => {
+          if (_.isEmpty(e.name)) {
+            e.name = e.type;
+          }
+          const q = { name: e.name, type: "text" };
+          if (e.name === "spender") {
+            q.disabled = true;
+            q.value = CONTRACT_ADDRESS.matka;
+          }
+          return { ...q };
+        })}
+        stateMutability={input.stateMutability}
+        setShowModal={this.setShowModal}
+        setModalContent={this.setModalContent}
+      />
+    );
+  }
+
+  renderBet() {
+    const input = {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+        {
+          internalType: "uint256",
+          name: "number",
+          type: "uint256",
+        },
+      ],
+      name: "bid",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    };
+    return (
+      <FunctionCard
+        title={input.name}
+        key={0}
+        contractType="matka"
+        inputs={input.inputs.map((e) => {
+          if (_.isEmpty(e.name)) {
+            e.name = e.type;
+          }
+          const q = { name: e.name, type: "text" };
+          if (e.name === "amount") {
+            q.defaultValue = RemoveMultiplier(this.state.allowance);
+          }
+          return { ...q };
+        })}
+        stateMutability={input.stateMutability}
+        setShowModal={this.setShowModal}
+        setModalContent={this.setModalContent}
+      />
+    );
+  }
+
+  renderFunc() {
+    if (this.state.allowance === null) return "loading";
+    if (this.state.allowance === 0) return this.renderApprove();
+    return this.renderBet();
+  }
 
   render() {
-    console.log(
-      "this.props.matkaDetails.currentPool",
-      this.props.matkaDetails.currentPool
-    );
-
     return (
       <div className="single-matka">
         <Container>
@@ -83,13 +235,37 @@ class SingleMatka extends React.Component {
             </Col>
             <Col lg={6} sm={12} md={6} className="single-matka-section">
               <div className="single-matka-section--title">BET</div>
-              <div className="single-matka-section--body"></div>
+              <div className="single-matka-section--body">
+                {this.renderFunc()}
+              </div>
             </Col>
           </Row>
         </Container>
+
+        <Modal
+          show={this.state.showModal}
+          onHide={() => this.setState({ showModal: false })}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>MATKA</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>{this.state.modalContent}</Modal.Body>
+          <Modal.Footer>
+            <Button
+              variant="secondary"
+              onClick={() => this.setState({ showModal: false })}
+            >
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     );
   }
 }
 
-export default connect()(SingleMatka);
+function mapStateToProps({ wallet }) {
+  return { wallet };
+}
+
+export default connect(mapStateToProps)(SingleMatka);

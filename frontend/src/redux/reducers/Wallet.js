@@ -10,11 +10,11 @@ const initialState = {
 const WalletReducer = (state = initialState, payload) => {
   switch (payload.type) {
     case types.WALLET_CONNECTED: {
-      const { adddress, chain_id } = payload.payload;
+      const { address, chain_id } = payload.payload;
       return {
         ...state,
         connected: true,
-        address: adddress,
+        address: address,
         chain_id: chain_id,
       };
     }
@@ -24,10 +24,10 @@ const WalletReducer = (state = initialState, payload) => {
     }
 
     case types.WALLET_ADDRESS_CHANGED: {
-      const { adddress } = payload.payload;
+      const { address } = payload.payload;
       return {
         ...state,
-        address: adddress,
+        address: address,
       };
     }
 

@@ -1,7 +1,11 @@
 import Web3 from "web3";
 import detectEthereumProvider from "@metamask/detect-provider";
 
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../helpers/constant";
+import {
+  CONTRACT_ABI,
+  CONTRACT_ADDRESS,
+  AddMultiplier,
+} from "../helpers/constant";
 
 import * as actions from "../actions";
 import store from "../redux/store";
@@ -124,12 +128,14 @@ export async function SubmitContractTxGeneral(
     const contract = new web3.eth.Contract(abi, address);
 
     if (stateMutability === "view") {
-      const resp = await contract.methods[method](...params).call({
-        from: addresses[0],
-      });
+      const resp = await contract.methods[method](...params).call();
 
       return resp;
     } else {
+      if (method === "approve" && type === "token")
+        params[1] = AddMultiplier(params[1]);
+      else if (method === "bid" && type === "matka")
+        params[0] = AddMultiplier(params[0]);
       const gasLimit = await contract.methods[method](...params).estimateGas({
         from: addresses[0],
       });

@@ -86,4 +86,16 @@ export const FormatSeconds = (seconds) => {
   );
 };
 
+export const AddMultiplier = (amount) => {
+  const multiplier = Math.pow(10, 18);
+
+  return RemoveExpo(parseFloat(amount) * multiplier);
+};
+
+export const RemoveMultiplier = (amount) => {
+  const multiplier = Math.pow(10, 18);
+
+  return parseFloat(amount) / multiplier;
+};
+
 export const TIMER_FORMAT = "DD:HH:MM::SS";

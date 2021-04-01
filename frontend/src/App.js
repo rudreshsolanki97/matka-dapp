@@ -52,7 +52,12 @@ class App extends Component {
         <PageNavigation links={[...links]} active={active} />
 
         <Switch>
-          <Route exact="/single-matka" component={ComposedSingleMatka}></Route>
+          <Route
+            exact={true}
+            path="/single-matka"
+            component={ComposedSingleMatka}
+          ></Route>
+          <Route exact={true} path="/"></Route>
         </Switch>
       </div>
     );
