@@ -147,10 +147,18 @@ export async function SubmitContractTxGeneral(
       return resp;
     }
   } catch (e) {
-    console.log("resp", e);
-    return null;
+    console.log("resp", IsJsonRpcError(e));
+    throw e;
   }
 }
+
+export const IsJsonRpcError = (err) => {
+  return err.message.split("\n")[0] === "Internal JSON-RPC error.";
+};
+
+export const GetJsonRpcError = (err) => {
+  return JSON.parse(err.message.split("\n").slice(1).join("").trim());
+};
 
 function getContractAddress(type) {
   return {

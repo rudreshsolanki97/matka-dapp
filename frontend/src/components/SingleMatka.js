@@ -37,6 +37,32 @@ class SingleMatka extends React.Component {
   }
 
   componentDidMount() {
+    this.getAllowance();
+    this.getEarning();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.wallet.address !== prevProps.wallet.address) {
+      this.getAllowance();
+      this.getEarning();
+    }
+  }
+
+  getEarning() {
+    SubmitContractTxGeneral(
+      "pendingBalance",
+      "matka",
+      "view",
+      this.props.wallet.address
+    )
+      .then((resp) => {
+        console.log("yyy", resp);
+        this.setState({ earning: resp });
+      })
+      .catch((e) => console.log(e));
+  }
+
+  getAllowance() {
     SubmitContractTxGeneral(
       "allowance",
       "token",
@@ -45,38 +71,9 @@ class SingleMatka extends React.Component {
       CONTRACT_ADDRESS.matka
     )
       .then((resp) => {
-        console.log(
-          "xxx",
-          this.props.wallet.address,
-          CONTRACT_ADDRESS.matka,
-          resp
-        );
         this.setState({ allowance: resp });
       })
       .catch((e) => console.log(e));
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.wallet.address !== prevProps.wallet.address) {
-      SubmitContractTxGeneral(
-        "allowance",
-        "token",
-        "view",
-        this.props.wallet.address,
-        CONTRACT_ADDRESS.matka
-      )
-        .then((resp) => {
-          console.log(
-            "xxx  2",
-            this.props.wallet.address,
-            CONTRACT_ADDRESS.matka,
-            resp
-          );
-
-          this.setState({ allowance: resp });
-        })
-        .catch((e) => console.log(e));
-    }
   }
 
   setShowModal() {
@@ -104,6 +101,14 @@ class SingleMatka extends React.Component {
     if (!this.props.matkaDetails.currentPool) return "";
     return (
       <Container>
+        {KeyFieldView({
+          k: `Can Bet `,
+          v: `${
+            this.props.matkaDetails.poolActive &&
+            new Date().getTime() <
+              this.props.matkaDetails.currentPool.endTime * 1000
+          }`,
+        })}
         {KeyFieldView({
           k: `Pool Number`,
           v: `${this.props.matkaDetails.currentPool.poolId}`,
@@ -216,9 +221,41 @@ class SingleMatka extends React.Component {
     );
   }
 
+  renderClaimReward() {
+    const input = {
+      inputs: [],
+      name: "withrawRewards",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    };
+    return (
+      <>
+        <FunctionCard
+          title={input.name}
+          key={0}
+          contractType="matka"
+          inputs={input.inputs.map((e) => {
+            if (_.isEmpty(e.name)) {
+              e.name = e.type;
+            }
+            const q = { name: e.name, type: "text" };
+            return { ...q };
+          })}
+          stateMutability={input.stateMutability}
+          setShowModal={this.setShowModal}
+          setModalContent={this.setModalContent}
+        />
+        <div className="u-float-r earning">
+          Earning&nbsp;:&nbsp;{this.state.earning} Token
+        </div>
+      </>
+    );
+  }
+
   renderFunc() {
     if (this.state.allowance === null) return "loading";
-    if (this.state.allowance === 0) return this.renderApprove();
+    if (this.state.allowance == 0) return this.renderApprove();
     return this.renderBet();
   }
 
@@ -230,7 +267,7 @@ class SingleMatka extends React.Component {
             <Col lg={6} sm={12} md={6} className="single-matka-section left">
               <div className="single-matka-section--title">Matka Details</div>
               <div className="single-matka-section--body">
-                {this.renderCurrentPool()}
+                {this.renderClaimReward()}
               </div>
             </Col>
             <Col lg={6} sm={12} md={6} className="single-matka-section">

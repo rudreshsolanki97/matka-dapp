@@ -15,9 +15,12 @@ import WithMatkaDetails from "./components/HOC/WithMatkaDetails";
 import "./assets/scss/main.scss";
 import { initWeb3 } from "./wallets/metamask";
 import SingleMatka from "./components/SingleMatka";
+import Home from "./components/Home";
+
 import { compose } from "redux";
 
-const ComposedSingleMatka = compose(WithMatkaDetails)(SingleMatka);
+const ComposedSingleMatka = SingleMatka;
+const ComposedHome = compose(WithMatkaDetails)(Home);
 
 class App extends Component {
   componentDidMount() {
@@ -57,7 +60,7 @@ class App extends Component {
             path="/single-matka"
             component={ComposedSingleMatka}
           ></Route>
-          <Route exact={true} path="/"></Route>
+          <Route path="/" component={ComposedHome}></Route>
         </Switch>
       </div>
     );

@@ -6,6 +6,10 @@
 
   color: white;
 
+  .earning {
+    font-size: medium;
+  }
+
   .left {
     border-right: 1px solid white;
 
@@ -33,5 +37,6 @@
   }
   .key {
     text-transform: uppercase;
+    font-weight: 550;
   }
 }

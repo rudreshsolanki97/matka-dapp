@@ -2,7 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
 import _ from "lodash";
 
-import { SubmitContractTxGeneral } from "../../wallets/metamask";
+import {
+  GetJsonRpcError,
+  IsJsonRpcError,
+  SubmitContractTxGeneral,
+} from "../../wallets/metamask";
 import { EXPLORER } from "../../helpers/constant";
 
 const RenderInput = ({ field, ...inputProps }) => (
@@ -282,9 +286,13 @@ export const DynamicForm = (props) => {
               setLoading(false);
             })
             .catch((e) => {
-              console.log("error", e);
+              if (IsJsonRpcError(e)) {
+                const err = GetJsonRpcError(e);
+                props.setModalContent(`Error: ${err.message}`);
+                setLoading(false);
+                return;
+              }
               alert("Error");
-              props.setModalContent("error");
               setLoading(false);
             });
         }}
